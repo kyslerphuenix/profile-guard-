@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Guard by Vrax</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .panel {
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #1e1e1e;
+        }
+        
+        .title {
+            text-align: center;
+            color: #ffcc00;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .menu-item {
+            margin: 10px 0;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        
+        .menu-item:hover {
+            background-color: #333;
+        }
+        
+        .cyan {
+            color: #00ffff;
+        }
+        
+        .green {
+            color: #00ff00;
+        }
+        
+        .red {
+            color: #ff0000;
+        }
+        
+        .yellow {
+            color: #ffff00;
+        }
+        
+        .blue {
+            color: #1e90ff;
+        }
+        
+        .magenta {
+            color: #ff00ff;
+        }
+        
+        .bold {
+            font-weight: bold;
+        }
+        
+        input {
+            background-color: #333;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 8px;
+            width: 100%;
+            margin: 5px 0;
+        }
+        
+        button {
+            background-color: #333;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 3px;
+            padding: 8px 15px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        
+        button:hover {
+            background-color: #444;
+        }
+        
+        .success {
+            color: #00ff00;
+            border-color: #00ff00;
+        }
+        
+        .error {
+            color: #ff0000;
+            border-color: #ff0000;
+        }
+        
+        .warning {
+            color: #ffff00;
+            border-color: #ffff00;
+        }
+        
+        .info {
+            color: #1e90ff;
+            border-color: #1e90ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="main-menu" class="panel">
+            <div class="title bold magenta">🔥 Facebook Guard by Vrax 🔥</div>
+            <div class="menu-item bold cyan" onclick="showGuardMenu()">[1] Manage Profile Guard</div>
+            <div class="menu-item bold red" onclick="exitApp()">[2] Exit</div>
+        </div>
+        
+        <div id="guard-menu" class="panel" style="display: none;">
+            <div class="title bold">Profile Guard</div>
+            <div id="login-section">
+                <div class="bold yellow">📧 Enter your Facebook Email:</div>
+                <input type="text" id="email" placeholder="Email">
+                <div class="bold yellow">🔑 Enter your Facebook Password:</div>
+                <input type="password" id="password" placeholder="Password">
+                <button onclick="login()">Login</button>
+                <button onclick="backToMain()">Back</button>
+            </div>
+            
+            <div id="guard-options" style="display: none;">
+                <div id="user-info" class="bold cyan"></div>
+                <div class="menu-item bold green" onclick="activateGuard()">[1] Activate Profile Guard</div>
+                <div class="menu-item bold red" onclick="deactivateGuard()">[2] Deactivate Profile Guard</div>
+                <div class="menu-item bold yellow" onclick="backToMain()">[3] Back to Main Menu</div>
+            </div>
+        </div>
+        
+        <div id="message-panel" class="panel" style="display: none;"></div>
+    </div>
+
+    <script>
+        let currentToken = '';
+        let currentUserId = '';
+        let currentUserName = '';
+        
+        function clearScreen() {
+            document.getElementById('message-panel').style.display = 'none';
+        }
+        
+        function showMainMenu() {
+            document.getElementById('main-menu').style.display = 'block';
+            document.getElementById('guard-menu').style.display = 'none';
+            clearScreen();
+        }
+        
+        function showGuardMenu() {
+            document.getElementById('main-menu').style.display = 'none';
+            document.getElementById('guard-menu').style.display = 'block';
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('guard-options').style.display = 'none';
+            clearScreen();
+        }
+        
+        function backToMain() {
+            showMainMenu();
+        }
+        
+        function exitApp() {
+            showMessage('👋 Exiting...', 'info');
+            setTimeout(() => {
+                document.body.innerHTML = '<div class="panel info"><div class="title">Goodbye!</div></div>';
+            }, 1000);
+        }
+        
+        function showMessage(message, type) {
+            const panel = document.getElementById('message-panel');
+            panel.style.display = 'block';
+            panel.className = 'panel ' + type;
+            panel.innerHTML = message;
+            
+            if (type !== 'error') {
+                setTimeout(() => {
+                    panel.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        function generateRandomHex(length) {
+            const chars = '0123456789abcdef';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+        
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        
+        async function getUserId(token) {
+            try {
+                const response = await fetch(`https://graph.facebook.com/me?access_token=${token}`);
+                if (!response.ok) {
+                    return { id: null, name: null };
+                }
+                const data = await response.json();
+                return { id: data.id, name: data.name };
+            } catch (error) {
+                console.error('Error getting user ID:', error);
+                return { id: null, name: null };
+            }
+        }
+        
+        async function getToken(email, password) {
+            const headers = {
+                'authorization': 'OAuth 350685531728|62f8ce9f74b12f84c123cc23437a4a32',
+                'x-fb-friendly-name': 'Authenticate',
+                'x-fb-connection-type': 'Unknown',
+                'content-type': 'application/x-www-form-urlencoded',
+                'x-fb-http-engine': 'Liger'
+            };
+            
+            const data = new URLSearchParams();
+            data.append('adid', generateRandomHex(16));
+            data.append('format', 'json');
+            data.append('device_id', generateUUID());
+            data.append('email', email);
+            data.append('password', password);
+            data.append('generate_analytics_claims', '0');
+            data.append('credentials_type', 'password');
+            data.append('source', 'login');
+            data.append('error_detail_type', 'button_with_disabled');
+            data.append('enroll_misauth', 'false');
+            data.append('generate_session_cookies', '0');
+            data.append('generate_machine_id', '0');
+            data.append('fb_api_req_friendly_name', 'authenticate');
+            
+            try {
+                const response = await fetch('https://b-graph.facebook.com/auth/login', {
+                    method: 'POST',
+                    headers: headers,
+                    body: data
+                });
+                
+                if (!response.ok) {
+                    return null;
+                }
+                
+                const result = await response.json();
+                return result.access_token;
+            } catch (error) {
+                console.error('Error getting token:', error);
+                return null;
+            }
+        }
+        
+        async function turnShield(token, enable) {
+            const userInfo = await getUserId(token);
+            if (!userInfo.id) {
+                showMessage('[!] Invalid token. Please try again.', 'error');
+                return;
+            }
+            
+            const variables = {
+                '0': {
+                    'is_shielded': enable,
+                    'session_id': generateUUID(),
+                    'actor_id': userInfo.id,
+                    'client_mutation_id': generateUUID()
+                }
+            };
+            
+            const postData = {
+                'variables': JSON.stringify(variables),
+                'method': 'post',
+                'doc_id': '1477043292367183'
+            };
+            
+            const headers = {
+                'Authorization': `OAuth ${token}`,
+                'Content-Type': 'application/json'
+            };
+            
+            try {
+                const response = await fetch('https://graph.facebook.com/graphql', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(postData)
+                });
+                
+                if (!response.ok) {
+                    showMessage(`Request failed: ${await response.text()}`, 'error');
+                    return;
+                }
+                
+                const responseText = await response.text();
+                if (responseText.includes('"is_shielded":true')) {
+                    showMessage('✅ Activated Profile Guard', 'success');
+                } else if (responseText.includes('"is_shielded":false')) {
+                    showMessage('❌ Deactivated Profile Guard', 'error');
+                } else {
+                    showMessage(`⚠ Unexpected response: ${responseText}`, 'warning');
+                }
+            } catch (error) {
+                console.error('Error turning shield:', error);
+                showMessage('Error communicating with Facebook', 'error');
+            }
+        }
+        
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!email || !password) {
+                showMessage('Please enter both email and password', 'error');
+                return;
+            }
+            
+            showMessage('Logging in...', 'info');
+            
+            const token = await getToken(email, password);
+            if (!token) {
+                showMessage('[!] Failed to retrieve token. Please try again.', 'error');
+                return;
+            }
+            
+            const userInfo = await getUserId(token);
+            if (!userInfo.id) {
+                showMessage('[!] Invalid token. Please try again.', 'error');
+                return;
+            }
+            
+            currentToken = token;
+            currentUserId = userInfo.id;
+            currentUserName = userInfo.name;
+            
+            document.getElementById('user-info').textContent = `🔹 Logged in as: ${userInfo.name} (ID: ${userInfo.id})`;
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('guard-options').style.display = 'block';
+            clearScreen();
+        }
+        
+        function activateGuard() {
+            if (!currentToken) {
+                showMessage('Please login first', 'error');
+                return;
+            }
+            turnShield(currentToken, true);
+        }
+        
+        function deactivateGuard() {
+            if (!currentToken) {
+                showMessage('Please login first', 'error');
+                return;
+            }
+            turnShield(currentToken, false);
+        }
+    </script>
+</body>
+</html>
